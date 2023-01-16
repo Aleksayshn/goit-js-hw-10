@@ -31,3 +31,8 @@ export function createCardCountry({
   		 <p><b>Languages:</b> ${languagesMore}</p>
     </div>`
 }
+
+export function cleanMarkupCountry(refEl) {
+    return refEl.innerHTML = ''
+}
+

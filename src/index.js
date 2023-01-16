@@ -2,7 +2,7 @@ import './css/styles.css';
 import Notiflix from 'notiflix';
 import debounce from 'lodash.debounce';
 import { fetchCountriesInput } from './js/countries';
-import { createPreviousListCountry, createCardCountry } from './js/country-card';
+import { createPreviousListCountry, createCardCountry, cleanMarkupCountry } from './js/country-card';
 
 const DEBOUNCE_DELAY = 300;
 
@@ -11,9 +11,10 @@ const refs = {
     countryListEl: document.querySelector('.country-list'),
     countryInfoEl: document.querySelector('.country-info'),
 };
+const { inputSearchEl, countryListEl, countryInfoEl } = refs;
 
 
-refs.inputSearchEl.addEventListener('input', debounce(onInputfill, DEBOUNCE_DELAY));
+inputSearchEl.addEventListener('input', debounce(onInputfill, DEBOUNCE_DELAY));
 
 function onInputfill(e) {
     const valueInput = e.target.value.trim().toLowerCase();
@@ -27,11 +28,11 @@ function onInputfill(e) {
 
     fetchCountriesInput(valueInput)
         .then(countries => {
-            console.log(countries)
 
             if (countries.length > 10) {
-                refs.countryListEl.innerHTML = '';
-                refs.countryInfoEl.innerHTML = '';
+                cleanMarkupCountry(countryListEl);
+                cleanMarkupCountry(countryInfoEl);
+
                 Notiflix.Notify.info(
                     'Too many matches found. Please enter a more specific name.'
                 );
@@ -39,15 +40,15 @@ function onInputfill(e) {
             }
             if (countries.length > 1 && countries.length <= 10) {
                 const markupList = createPreviousListCountry(countries);
-                refs.countryListEl.innerHTML = markupList;
-                refs.countryInfoEl.innerHTML = '';
+                countryListEl.innerHTML = markupList;
+                cleanMarkupCountry(countryInfoEl);
                 return;
             }
 
             if (countries.length === 1) {
                 const markupOneCountry = createCardCountry(countries[0]);
-                refs.countryListEl.innerHTML = '';
-                refs.countryInfoEl.innerHTML = markupOneCountry;
+                cleanMarkupCountry(countryListEl);
+                countryInfoEl.innerHTML = markupOneCountry;
                 return;
             }
         })
@@ -55,8 +56,8 @@ function onInputfill(e) {
         .catch(err => {
             switch (err.message) {
                 case '404': {
-                    refs.countryListEl.innerHTML = '';
-                    refs.countryInfoEl.innerHTML = '';
+                    cleanMarkupCountry(countryListEl);
+                    cleanMarkupCountry(countryInfoEl);
                     Notiflix.Notify.failure('Oops, there is no country with that name');
                     break;
                 }
